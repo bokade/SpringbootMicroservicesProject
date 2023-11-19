@@ -1,0 +1,81 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: microservicess
+  application:
+    name: USER-SERVICE
+  config:
+    import: optional:configserver:http://localhost:8085
+#  profiles:
+#    active: dev
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-63254692.okta.com/oauth2/default
+      client:
+        registration:
+          my-internal-client:
+            provider: okta
+            authorization-grant-type: client_credentials
+            scope: internal
+            client-id: 0oacxjqnd9H4DPGdp5d7
+            client-secret: efG2sLVQ3BMfprWAAeKOEJng6yNJz-T2y4bdwoZKGDa9M61leF913TW_a5AznyZT
+        provider:
+          okta:
+            issuer-uri: https://dev-63254692.okta.com/oauth2/default
+
+#eureka:
+#  instances:
+#    prefer-ip-address: true
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingHotelBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automatictransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 6s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+  retry:
+    instances:
+      ratingHotelService:
+        max-attempts: 3
+        wait-duration: 5s
+  ratelimiter:
+    instances:
+    userRateLimiter:
+      limit-refresh-period: 4s
+      limit-for-period: 2
+      timeout-duration: 0s
+
+okta:
+  oauth2:
+    issuer: https://dev-63254692.okta.com/oauth2/default
+    audience: api://default
+
+
